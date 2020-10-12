@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="content-section">
+    <h1>Autori</h1>
+    {% for author in authors %}
+      <p>{{ author }}</p>
+    {% endfor %}
+  </div>
+{% endblock content %}
