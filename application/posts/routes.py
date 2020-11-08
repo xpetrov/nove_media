@@ -30,11 +30,13 @@ def post(post_id):
         for vote in comment.likes:
             comment.votes = comment.votes + 1 if vote.is_upvote else comment.votes - 1
         if current_user:
-            has_upvoted = CommentLike.query.filter_by(comment_id = comment.id).filter_by(user_id = current_user.id).filter_by(is_upvote=True).first()
-            if has_upvoted:
+            upvoted = CommentLike.query.filter_by(comment_id=comment.id)\
+                .filter_by(user_id=current_user.id).filter_by(is_upvote=True).count()
+            downvoted = CommentLike.query.filter_by(comment_id=comment.id)\
+                .filter_by(user_id=current_user.id).filter_by(is_upvote=False).count()
+            if upvoted-downvoted > 0:
                 comment.can_upvote = False
-            has_downvoted = CommentLike.query.filter_by(comment_id = comment.id).filter_by(user_id = current_user.id).filter_by(is_upvote=False).first()
-            if has_downvoted:
+            if upvoted-downvoted < 0:
                 comment.can_downvote = False
 
     form = ResponseForm()

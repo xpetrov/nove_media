@@ -53,8 +53,6 @@
   <article class="content-section media">
     <div class="votes">
       <form action="{{ url_for('posts.upvote_comment', post_id=post_id, comment_id=comment.id) }}" method="post">
-        <div>{{comment.can_upvote}}</div>
-        <div>{{comment.can_downvote}}</div>
         {% if comment.can_upvote %}
         <button>&#8963;</button>
         {% endif %}
