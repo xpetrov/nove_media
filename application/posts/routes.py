@@ -2,8 +2,8 @@ from flask import (render_template, url_for, flash,
                    redirect, request, abort, Blueprint)
 from flask_login import current_user, login_required
 from application import db
-from application.models import Post
-from application.posts.forms import PostForm
+from application.models import Post, Comment
+from application.posts.forms import PostForm, ResponseForm
 
 posts = Blueprint('posts', __name__)
 
@@ -24,7 +24,8 @@ def new_post():
 @posts.route('/post/<int:post_id>')
 def post(post_id):
     post = Post.query.get_or_404(post_id)
-    return render_template('post.html', title=post.title, post=post)
+    form = ResponseForm()
+    return render_template('post.html', post_id=post_id, title=post.title, post=post, form=form)
 
 
 @posts.route('/post/<int:post_id>/update', methods=['GET', 'POST'])
@@ -44,6 +45,21 @@ def update_post(post_id):
         form.title.data = post.title
         form.content.data = post.content
     return render_template('create_post.html', title='Upraviť otázku', form=form, legend='Upravte svoju otázku')
+
+
+@posts.route('/post/<int:post_id>/comments', methods=['POST'])
+@login_required
+def add_post_comment(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)
+    form = ResponseForm()
+    if form.validate_on_submit():
+        comment = Comment(content=form.message.data, author=current_user, post=post)
+        db.session.add(comment)
+        db.session.commit()
+        flash('Odpoved bola pridana', 'success')
+    return redirect(url_for('posts.post', post_id=post_id))
 
 
 @posts.route('/post/<int:post_id>/delete', methods=['POST'])
