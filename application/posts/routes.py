@@ -2,7 +2,7 @@ from flask import (render_template, url_for, flash,
                    redirect, request, abort, Blueprint)
 from flask_login import current_user, login_required
 from application import db
-from application.models import Post, Comment
+from application.models import Post, Comment, CommentLike
 from application.posts.forms import PostForm, ResponseForm
 
 posts = Blueprint('posts', __name__)
@@ -24,9 +24,42 @@ def new_post():
 @posts.route('/post/<int:post_id>')
 def post(post_id):
     post = Post.query.get_or_404(post_id)
-    form = ResponseForm()
-    return render_template('post.html', post_id=post_id, title=post.title, post=post, form=form)
+    comments = post.comments
+    for comment in comments:
+        comment.votes = 0
+        for vote in comment.likes:
+            comment.votes = comment.votes + 1 if vote.is_upvote else comment.votes - 1
+        if current_user:
+            has_upvoted = CommentLike.query.filter_by(comment_id = comment.id).filter_by(user_id = current_user.id).filter_by(is_upvote=True).first()
+            if has_upvoted:
+                comment.can_upvote = False
+            has_downvoted = CommentLike.query.filter_by(comment_id = comment.id).filter_by(user_id = current_user.id).filter_by(is_upvote=False).first()
+            if has_downvoted:
+                comment.can_downvote = False
 
+    form = ResponseForm()
+    return render_template('post.html', post_id=post_id, title=post.title, post=post, form=form, comments=comments)
+
+
+@posts.route('/post/<int:post_id>/comments/<int:comment_id>/upvote', methods=['POST'])
+@login_required
+def upvote_comment(post_id, comment_id):
+    post = Post.query.get_or_404(post_id)
+    comment = Comment.query.get_or_404(comment_id)
+    like = CommentLike(user=current_user, comment=comment, is_upvote=True) 
+    db.session.add(like)
+    db.session.commit()
+    return redirect(url_for('posts.post', post_id=post.id))
+
+@posts.route('/post/<int:post_id>/comments/<int:comment_id>/downvote', methods=['POST'])
+@login_required
+def downvote_comment(post_id, comment_id):
+    post = Post.query.get_or_404(post_id)
+    comment = Comment.query.get_or_404(comment_id)
+    like = CommentLike(user=current_user, comment=comment, is_upvote=False) 
+    db.session.add(like)
+    db.session.commit()
+    return redirect(url_for('posts.post', post_id=post.id))
 
 @posts.route('/post/<int:post_id>/update', methods=['GET', 'POST'])
 @login_required
@@ -51,14 +84,12 @@ def update_post(post_id):
 @login_required
 def add_post_comment(post_id):
     post = Post.query.get_or_404(post_id)
-    if post.author != current_user:
-        abort(403)
     form = ResponseForm()
     if form.validate_on_submit():
         comment = Comment(content=form.message.data, author=current_user, post=post)
         db.session.add(comment)
         db.session.commit()
-        flash('Odpoved bola pridana', 'success')
+        flash('Odpoveď bola pridaná', 'success')
     return redirect(url_for('posts.post', post_id=post_id))
 
 
@@ -72,3 +103,10 @@ def delete_post(post_id):
     db.session.commit()
     flash('Vaša otázka bola vymazaná', 'success')
     return redirect(url_for('main.home'))
+
+
+@posts.route('/delete/all', methods=['GET'])
+def delete_db():
+    db.drop_all()
+    db.create_all()
+    return('Hello World')
