@@ -32,24 +32,27 @@
     </div>
     <h2 class="article-title">{{ post.title }}</h2>
     <p class="article-content">{{ post.content }}</p>
+    <div class="alert alert-secondary" role="alert">
+      Zdroj: <a href="{{ post.url }}" target="_blank">{{ post.url }}</a>
+    </div>
     <strong>Vierohodnosť článku:</strong>
     <div class="progress mb-2">
-      <div class="progress-bar bg-success" role="progressbar" style="width: 60%" aria-valuemax="100">60%</div>
-      <div class="progress-bar bg-danger" role="progressbar" style="width: 40%" aria-valuemax="100">40%</div>
+      <div class="progress-bar bg-success" role="progressbar" style="width: {{ true_percent }}%" aria-valuemax="100">{{ true_percent }}%</div>
+      <div class="progress-bar bg-danger" role="progressbar" style="width: {{ false_percent }}%" aria-valuemax="100">{{ false_percent }}%</div>
     </div>
     <div class="text-center">
-      <form action="{{ url_for('posts.true_post', post_id=post_id) }}" method="post">
-        <button type="button" class="btn btn-success">Dôveryhodný</button>
+      <form action="{{ url_for('posts.true_post', post_id=post.id) }}" method="post">
+        <button class="btn btn-success">Dôveryhodný</button>
       </form>
-      <form action="{{ url_for('posts.false_post', post_id=post_id) }}" method="post">
-        <button type="button" class="btn btn-danger">Nedoveryhodný</button>
+      <form action="{{ url_for('posts.false_post', post_id=post.id) }}" method="post">
+        <button class="btn btn-danger">Nedoveryhodný</button>
       </form>
     </div>
   </div>
 </article>
 
 <div>
-  <form method="POST" action="{{url_for('posts.add_post_comment', post_id=post_id)}}">
+  <form method="POST" action="{{url_for('posts.add_post_comment', post_id=post.id)}}">
     {{ form.hidden_tag() }}
     <fieldset class="form-group">
       <div class="form-group">
@@ -78,13 +81,13 @@
   {% for comment in comments %}
   <article class="content-section media">
     <div class="votes">
-      <form action="{{ url_for('posts.upvote_comment', post_id=post_id, comment_id=comment.id) }}" method="post">
+      <form action="{{ url_for('posts.upvote_comment', post_id=post.id, comment_id=comment.id) }}" method="post">
         {% if comment.can_upvote %}
         <button>&#8963;</button>
         {% endif %}
       </form>
       <strong>{{ comment.votes }}<br>hlasov</strong>
-      <form action="{{ url_for('posts.downvote_comment', post_id=post_id, comment_id=comment.id) }}" method="post">
+      <form action="{{ url_for('posts.downvote_comment', post_id=post.id, comment_id=comment.id) }}" method="post">
         {% if comment.can_downvote %}
         <button>&#8964;</button>
         {% endif %}

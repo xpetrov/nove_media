@@ -20,6 +20,7 @@ class User(db.Model, UserMixin):
     comments = db.relationship('Comment', backref='author', lazy=True)
     comment_likes = db.relationship('CommentLike', backref='user', lazy=True)
     post_likes = db.relationship('PostLike', backref='user', lazy=True)
+    trustworthy_submissions = db.relationship('TrustworthySubmission', backref='user', lazy=True)
 
     def get_reset_token(self, expires_sec=1800):
         s = Serializer(current_app.config['SECRET_KEY'], expires_sec)
@@ -41,12 +42,14 @@ class User(db.Model, UserMixin):
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title =  db.Column(db.String(100), nullable=False)
+    url = db.Column(db.String(250), nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
     comments = db.relationship('Comment', backref='post', lazy=True)
     likes = db.relationship('PostLike', backref='post', lazy=True)
+    trustworthy_submissions = db.relationship('TrustworthySubmission', backref='post', lazy=True)
     keywords = db.relationship('KeyWord', backref='post', lazy=True)
 
     votes = 0
@@ -109,6 +112,16 @@ class PostLike(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     is_upvote = db.Column(db.Boolean, nullable=False)
+
+
+class TrustworthySubmission(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    is_trustworthy = db.Column(db.Boolean, nullable=False)
+
+    def __repr__(self):
+        return f"TS('{self.id}', '{self.post_id}', '{self.is_trustworthy}')"
 
 
 class KeyWord(db.Model):

@@ -34,8 +34,9 @@ def login():
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
-            if "/upvote" in next_page or "/downvote" in next_page:
-                return redirect(url_for('main.home'))
+            if next_page is not None:
+                if "/upvote" in next_page or "/downvote" in next_page:
+                    return redirect(url_for('main.home'))
             return redirect(next_page) if next_page else redirect(url_for('main.home'))
         else:
             flash('Prihlásenie bolo neúspešné. Skontrolujte email a heslo', 'danger')

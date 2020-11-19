@@ -2,7 +2,7 @@ from flask import (render_template, url_for, flash,
                    redirect, request, abort, Blueprint)
 from flask_login import current_user, login_required
 from application import db
-from application.models import Post, Comment, CommentLike, PostLike
+from application.models import Post, Comment, CommentLike, PostLike, TrustworthySubmission
 from application.posts.forms import PostForm, ResponseForm
 
 posts = Blueprint('posts', __name__)
@@ -13,13 +13,22 @@ posts = Blueprint('posts', __name__)
 def new_post():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(title=form.title.data, content=form.content.data, author=current_user)
+        post = Post(title=form.title.data, url=form.url.data,
+                    content=form.content.data, author=current_user)
         db.session.add(post)
         db.session.commit()
         flash('Váša otázka bola vytvorená a zverejnená', 'success')
         return redirect(url_for('main.home'))
     return render_template('create_post.html', title='Opýtať sa otázku', form=form, legend='Opýtajte sa otázku')
 
+
+def get_percent_of(true_or_false, post_id):
+    all = TrustworthySubmission.query.filter_by(post_id=post_id).count()
+    if all == 0:
+        return 0
+    count = TrustworthySubmission.query.filter_by(post_id=post_id)\
+        .filter_by(is_trustworthy=true_or_false).count()
+    return count / all * 100
 
 @posts.route('/post/<int:post_id>')
 def post(post_id):
@@ -28,8 +37,43 @@ def post(post_id):
     comments = post.comments
     for comment in comments:
         comment.set_votable()
+    true_percent = int(round(get_percent_of(True, post_id)))
+    false_percent = int(round(get_percent_of(False, post_id)))
     form = ResponseForm()
-    return render_template('post.html', post_id=post_id, title=post.title, post=post, form=form, comments=comments)
+    return render_template('post.html', post=post, form=form, comments=comments,
+                           true_percent=true_percent, false_percent=false_percent)
+
+
+@posts.route('/post/<int:post_id>/true', methods=['POST'])
+@login_required
+def true_post(post_id):
+    print('true_post')
+    TrustworthySubmission.query.filter_by(user_id=current_user.id)\
+        .filter_by(post_id=post_id)\
+        .filter_by(is_trustworthy=False)\
+        .delete()
+    post = Post.query.get_or_404(post_id)
+    ts = TrustworthySubmission(user=current_user, post=post, is_trustworthy=True)
+    db.session.add(ts)
+    db.session.commit()
+    print(ts)
+    return redirect(url_for('posts.post', post_id=post_id))
+
+
+@posts.route('/post/<int:post_id>/false', methods=['POST'])
+@login_required
+def false_post(post_id):
+    print('false_post')
+    TrustworthySubmission.query.filter_by(user_id=current_user.id)\
+        .filter_by(post_id=post_id)\
+        .filter_by(is_trustworthy=True)\
+        .delete()
+    post = Post.query.get_or_404(post_id)
+    ts = TrustworthySubmission(user=current_user, post=post, is_trustworthy=False)
+    db.session.add(ts)
+    db.session.commit()
+    print(ts)
+    return redirect(url_for('posts.post', post_id=post_id))
 
 
 @posts.route('/post/<int:post_id>/comments/<int:comment_id>/upvote', methods=['POST'])
