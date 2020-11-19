@@ -86,11 +86,17 @@ a.article-title:hover {
 
 .votes {
   padding-right: 20px;
+  align-self: center;
+  text-align: center;
 }
 
 .votes * {
   display: block;
   text-align: center;
+}
+
+.votes svg {
+  display: inline;
 }
 
 .votes button {
@@ -99,4 +105,6 @@ a.article-title:hover {
   font-size: 25px;
   font-weight: 700;
   padding: 10px;
+  margin: 0;
+  display: inline;
 }

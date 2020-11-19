@@ -7,16 +7,16 @@
       <button>&#8963;</button>
       {% endif %}
     </form>
-    <strong>{{ post.votes }}</strong>
+    <strong>{{ post.votes }}<br>hlasov</strong>
     <form action="{{ url_for('posts.downvote_post', post_id=post.id) }}" method="post">
       {% if post.can_downvote %}
       <button>&#8964;</button>
       {% endif %}
     </form>
   </div>
-  <img class="rounded-circle article-img"
-    src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
   <div class="media-body">
+    <img class="rounded-circle article-img"
+      src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
     <div class="article-metadata">
       <a class="mr-2"
         href="{{ url_for('users.user_posts', username=post.author.username) }}">{{ post.author.username }}</a>
@@ -32,6 +32,19 @@
     </div>
     <h2 class="article-title">{{ post.title }}</h2>
     <p class="article-content">{{ post.content }}</p>
+    <strong>Vierohodnosť článku:</strong>
+    <div class="progress mb-2">
+      <div class="progress-bar bg-success" role="progressbar" style="width: 60%" aria-valuemax="100">60%</div>
+      <div class="progress-bar bg-danger" role="progressbar" style="width: 40%" aria-valuemax="100">40%</div>
+    </div>
+    <div class="text-center">
+      <form action="{{ url_for('posts.true_post', post_id=post_id) }}" method="post">
+        <button type="button" class="btn btn-success">Dôveryhodný</button>
+      </form>
+      <form action="{{ url_for('posts.false_post', post_id=post_id) }}" method="post">
+        <button type="button" class="btn btn-danger">Nedoveryhodný</button>
+      </form>
+    </div>
   </div>
 </article>
 
@@ -70,12 +83,22 @@
         <button>&#8963;</button>
         {% endif %}
       </form>
-      <strong>{{ comment.votes }}</strong>
+      <strong>{{ comment.votes }}<br>hlasov</strong>
       <form action="{{ url_for('posts.downvote_comment', post_id=post_id, comment_id=comment.id) }}" method="post">
         {% if comment.can_downvote %}
         <button>&#8964;</button>
         {% endif %}
       </form>
+      {% if comment.votes > 0 %}
+      <div class="text-success text-center">
+        <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-check-circle-fill" fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd"
+            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z">
+          </path>
+        </svg>
+      </div>
+      {% endif %}
     </div>
     <div>
       <h6>{{ comment.author.username }}</h6>

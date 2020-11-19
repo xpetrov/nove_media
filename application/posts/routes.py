@@ -61,7 +61,7 @@ def upvote_post(post_id):
     like = PostLike(user=current_user, post=post, is_upvote=True)
     db.session.add(like)
     db.session.commit()
-    return redirect(url_for('main.home'))
+    return redirect(url_for('posts.post', post_id=post.id))
 
 
 @posts.route('/post/<int:post_id>/downvote', methods=['POST'])
@@ -71,7 +71,7 @@ def downvote_post(post_id):
     like = PostLike(user=current_user, post=post, is_upvote=False)
     db.session.add(like)
     db.session.commit()
-    return redirect(url_for('main.home'))
+    return redirect(url_for('posts.post', post_id=post.id))
 
 
 @posts.route('/post/<int:post_id>/update', methods=['GET', 'POST'])
