@@ -2,7 +2,7 @@ from datetime import datetime
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app
 from application import db, login_manager
-from flask_login import UserMixin
+from flask_login import UserMixin, current_user
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -49,6 +49,24 @@ class Post(db.Model):
     likes = db.relationship('PostLike', backref='post', lazy=True)
     keywords = db.relationship('KeyWord', backref='post', lazy=True)
 
+    votes = 0
+    can_upvote = True
+    can_downvote = True
+
+    def set_votable(self):
+        self.votes = 0
+        for vote in self.likes:
+            self.votes = self.votes + 1 if vote.is_upvote else self.votes - 1
+        if current_user.is_authenticated:
+            upvoted = PostLike.query.filter_by(post_id=self.id)\
+                .filter_by(user_id=current_user.id).filter_by(is_upvote=True).count()
+            downvoted = PostLike.query.filter_by(post_id=self.id)\
+                .filter_by(user_id=current_user.id).filter_by(is_upvote=False).count()
+            if upvoted-downvoted > 0:
+                self.can_upvote = False
+            if upvoted-downvoted < 0:
+                self.can_downvote = False
+
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
 
@@ -63,6 +81,20 @@ class Comment(db.Model):
     votes = 0
     can_upvote = True
     can_downvote = True
+
+    def set_votable(self):
+        self.votes = 0
+        for vote in self.likes:
+            self.votes = self.votes + 1 if vote.is_upvote else self.votes - 1
+        if current_user.is_authenticated:
+            upvoted = CommentLike.query.filter_by(comment_id=self.id)\
+                .filter_by(user_id=current_user.id).filter_by(is_upvote=True).count()
+            downvoted = CommentLike.query.filter_by(comment_id=self.id)\
+                .filter_by(user_id=current_user.id).filter_by(is_upvote=False).count()
+            if upvoted-downvoted > 0:
+                self.can_upvote = False
+            if upvoted-downvoted < 0:
+                self.can_downvote = False
 
 
 class CommentLike(db.Model):

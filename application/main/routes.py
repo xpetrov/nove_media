@@ -1,5 +1,6 @@
 from flask import render_template, request, Blueprint
-from application.models import Post
+from flask_login import current_user
+from application.models import Post, PostLike
 
 main = Blueprint('main', __name__)
 
@@ -17,6 +18,8 @@ authors = [
 def home():
     page = request.args.get('page', 1, type=int)
     posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
+    for post in posts.items:
+        post.set_votable()
     return render_template('home.html', posts=posts)
 
 
