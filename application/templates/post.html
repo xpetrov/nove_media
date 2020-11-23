@@ -37,10 +37,12 @@
     </div>
     <strong>Vierohodnosť článku:</strong>
     <div class="progress mb-2">
-      <div class="progress-bar bg-success" role="progressbar" style="width: {{ true_percent }}%" aria-valuemax="100">{{ true_percent }}%</div>
-      <div class="progress-bar bg-danger" role="progressbar" style="width: {{ false_percent }}%" aria-valuemax="100">{{ false_percent }}%</div>
+      <div class="progress-bar bg-success" role="progressbar" style="width: {{ true_percent }}%" aria-valuemax="100">
+        {{ true_percent }}%</div>
+      <div class="progress-bar bg-danger" role="progressbar" style="width: {{ false_percent }}%" aria-valuemax="100">
+        {{ false_percent }}%</div>
     </div>
-    <div class="text-center">
+    <div class="text-center credibility-buttons">
       <form action="{{ url_for('posts.true_post', post_id=post.id) }}" method="post">
         <button class="btn btn-success">Dôveryhodný</button>
       </form>
