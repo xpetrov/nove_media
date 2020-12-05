@@ -22,6 +22,8 @@ class User(db.Model, UserMixin):
     post_likes = db.relationship('PostLike', backref='user', lazy=True)
     trustworthy_submissions = db.relationship('TrustworthySubmission', backref='user', lazy=True)
 
+    score = 0
+
     def get_reset_token(self, expires_sec=1800):
         s = Serializer(current_app.config['SECRET_KEY'], expires_sec)
         return s.dumps({'user_id': self.id}).decode('utf-8')

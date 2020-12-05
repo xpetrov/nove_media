@@ -33,8 +33,13 @@
     <h2 class="article-title">{{ post.title }}</h2>
     <p class="article-content">{{ post.content }}</p>
     <div class="alert alert-secondary" role="alert">
-      Zdroj: <a href="{{ post.url }}" target="_blank">{{ post.url }}</a>
+      Odkaz na článok: <a href="{{ post.url }}" target="_blank">{{ post.url }}</a>
     </div>
+    {% if is_in_konspiratory %}
+    <div class="alert alert-warning" role="alert">
+      Zdroj sa nachádza na zozname webov s pochybným obsahom. <a href="https://www.konspiratori.sk/zoznam-stranok.php" target="_blank">Viac o zozname</a>
+    </div>
+    {% endif %}
     <strong>Vierohodnosť článku:</strong>
     <div class="progress mb-2">
       <div class="progress-bar bg-success" role="progressbar" style="width: {{ true_percent }}%" aria-valuemax="100">
@@ -106,7 +111,7 @@
       {% endif %}
     </div>
     <div>
-      <h6>{{ comment.author.username }}</h6>
+      <h6>{{ comment.author.username }} ({{ comment.author.score }})</h6>
       <small class="text-muted">{{ comment.date_posted.strftime('%Y-%m-%d') }}</small>
       <p>{{ comment.content }}</p>
     </div>

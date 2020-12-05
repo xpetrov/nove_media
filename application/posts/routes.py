@@ -4,6 +4,8 @@ from flask_login import current_user, login_required
 from application import db
 from application.models import Post, Comment, CommentLike, PostLike, TrustworthySubmission
 from application.posts.forms import PostForm, ResponseForm
+from .konspiratori_sk import konspiratory
+from urllib.parse import urlparse
 
 posts = Blueprint('posts', __name__)
 
@@ -30,18 +32,38 @@ def get_percent_of(true_or_false, post_id):
         .filter_by(is_trustworthy=true_or_false).count()
     return count / all * 100
 
+
+def _calc_user_score(user):
+    numerator = 0
+    denominator = 0
+    for comment in user.comments:
+        q = CommentLike.query.filter_by(comment_id=comment.id)
+        positive_interaction = q.filter_by(is_upvote=True).count()
+        total_interaction = q.count()
+        numerator += positive_interaction
+        denominator += total_interaction
+    return 0 if denominator == 0 else numerator/denominator
+
+
 @posts.route('/post/<int:post_id>')
 def post(post_id):
     post = Post.query.get_or_404(post_id)
     post.set_votable()
     comments = post.comments
+    authors = []
     for comment in comments:
         comment.set_votable()
+        authors.append(comment.author)
+    for author in authors:
+        author.score = _calc_user_score(author)
     true_percent = int(round(get_percent_of(True, post_id)))
     false_percent = int(round(get_percent_of(False, post_id)))
+    domain = '.'.join(urlparse(post.url).netloc.split('.')[1:])
+    is_in_konspiratory = domain in konspiratory
     form = ResponseForm()
     return render_template('post.html', post=post, form=form, comments=comments,
-                           true_percent=true_percent, false_percent=false_percent)
+                           true_percent=true_percent, false_percent=false_percent,
+                           is_in_konspiratory=is_in_konspiratory)
 
 
 @posts.route('/post/<int:post_id>/true', methods=['POST'])

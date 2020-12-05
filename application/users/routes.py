@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect, request, Blueprint
 from flask_login import login_user, current_user, logout_user, login_required
 from application import db, bcrypt
-from application.models import User, Post
+from application.models import User, Post, CommentLike, Comment
 from application.users.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                                    RequestResetForm, ResetPasswordForm)
 from application.users.utils import save_picture, send_reset_email
@@ -108,3 +108,24 @@ def reset_token(token):
         flash('Vaše heslo bolo úspešne zmenené! Teraz sa môžete prihlásiť', 'success')
         return redirect(url_for('users.login'))
     return render_template('reset_token.html', title='Zmena hesla', form=form)
+
+
+def _calc_user_score(user):
+    numerator = 0
+    denominator = 0
+    for comment in user.comments:
+        q = CommentLike.query.filter_by(comment_id=comment.id)
+        positive_interaction = q.filter_by(is_upvote=True).count()
+        total_interaction = q.count()
+        numerator += positive_interaction
+        denominator += total_interaction
+    return 0 if denominator == 0 else numerator/denominator
+
+
+@users.route('/leaderboard')
+def leaderboard():
+    users = User.query.all()
+    for user in users:
+        user.score = _calc_user_score(user)
+    users.sort(key=lambda x: x.score, reverse=True)
+    return render_template('leaderboard.html', title='Rebríček používateľov', users=users)
