@@ -37,7 +37,8 @@
     </div>
     {% if is_in_konspiratory %}
     <div class="alert alert-warning" role="alert">
-      Zdroj sa nachádza na zozname webov s pochybným obsahom. <a href="https://www.konspiratori.sk/zoznam-stranok.php" target="_blank">Viac o zozname</a>
+      Zdroj sa nachádza na zozname webov s pochybným obsahom. <a href="https://www.konspiratori.sk/zoznam-stranok.php"
+        target="_blank">Viac o zozname</a>
     </div>
     {% endif %}
     <strong>Vierohodnosť článku:</strong>
@@ -111,8 +112,19 @@
       {% endif %}
     </div>
     <div>
-      <h6>{{ comment.author.username }} ({{ comment.author.score }})</h6>
-      <small class="text-muted">{{ comment.date_posted.strftime('%Y-%m-%d') }}</small>
+      <div class="comment__user-meta">
+        <h6>{{ comment.author.username }}</h6>
+        {% if comment.author.score > 0.8 %}
+        <img class="user-badge" src="../static/badges/gold.png" alt="">
+        {% endif %}
+        {% if comment.author.score > 0.65 %}
+        <img class="user-badge" src="../static/badges/silver.png" alt="">
+        {% endif %}
+        {% if comment.author.score > 0.5 %}
+        <img class="user-badge" src="../static/badges/bronze.png" alt="">
+        {% endif %}
+        <small class="text-muted comment__date">{{ comment.date_posted.strftime('%Y-%m-%d') }}</small>
+      </div>
       <p>{{ comment.content }}</p>
     </div>
   </article>

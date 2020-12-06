@@ -109,6 +109,47 @@ a.article-title:hover {
   display: inline;
 }
 
+.comment__user-meta h6 {
+  display: inline-block;
+}
+
+.user-badge {
+  display: inline-block;
+  height: auto;
+  width: 25px;
+}
+
+.comment__date {
+  display: block;
+}
+
 .credibility-buttons form {
   display: inline-block;
+}
+
+table.leaderboard {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table.leaderboard td,
+table.leaderboard th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+table.leaderboard th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #5f788a;
+  color: white;
+}
+
+table.leaderboard tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+table.leaderboard tr:hover {
+  background-color: #ddd;
 }

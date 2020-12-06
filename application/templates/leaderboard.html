@@ -1,6 +1,32 @@
 {% extends "layout.html" %}
 {% block content %}
-{% for user in users %}
-  <div>{{ user.username }}, {{ user.score }}</div>
-{% endfor %}
+
+<table class="leaderboard">
+  <tr>
+    <th>Poradie</th>
+    <th>Meno</th>
+    <th>Skóre</th>
+    <th>Odznaky</th>
+  </tr>
+  {% for user in users %}
+  <tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ user.username }}</td>
+    <td>{{ (user.score * 1000)|round|int }}</td>
+    <td>
+      {% if user.score > 0.8 %}
+      <img class="user-badge" src="../static/badges/gold.png" alt="">
+      {% endif %}
+      {% if user.score > 0.65 %}
+      <img class="user-badge" src="../static/badges/silver.png" alt="">
+      {% endif %}
+      {% if user.score > 0.5 %}
+      <img class="user-badge" src="../static/badges/bronze.png" alt="">
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+
 {% endblock content %}
