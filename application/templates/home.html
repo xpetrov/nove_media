@@ -1,9 +1,29 @@
 {% extends "layout.html" %}
 {% block content %}
+
+<section>
+  <h1>Vitajte na fóre Dezinfórum</h1>
+  <p>
+    Pochybujete o dôveryhodnosti žurnalistického článku ktorý ste si práve prečítali?
+    Položte svoje otázky ľuďom, ktorým záleží na pravdivých informáciách
+  </p>
+  <p>
+    Dezinfórum je otvorená komunita používateľov, ktorí diskutujú fakty uvedené v žurnalistických článkoch, vďaka čomu
+    prinášajú objektívny pohľad na uvedené informácie.
+  </p>
+</section>
+
+<h2>Nedávne otázky:</h2>
+
 {% for post in posts.items %}
 <article class="media content-section">
   <div class="votes">
-    <strong>{{ post.votes }}<br>hlasov</strong>
+    <strong>{{ post.votes }}<br>
+      {% if ((post.votes > 5) or (post.votes < -5)) %} hlasov
+      {% elif ((post.votes > 1) or (post.votes < -1)) %} hlasy
+      {% elif (post.votes == 1) or (post.votes == -1) %} hlas
+      {% elif (post.votes == 0) %}hlasov{% endif %}
+    </strong>
   </div>
   <div>
     <img class="rounded-circle article-img"

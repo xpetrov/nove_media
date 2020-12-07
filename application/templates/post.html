@@ -7,7 +7,12 @@
       <button>&#8963;</button>
       {% endif %}
     </form>
-    <strong>{{ post.votes }}<br>hlasov</strong>
+    <strong>{{ post.votes }}<br>
+      {% if ((post.votes > 5) or (post.votes < -5)) %} hlasov
+      {% elif ((post.votes > 1) or (post.votes < -1)) %} hlasy
+      {% elif (post.votes == 1) or (post.votes == -1) %} hlas
+      {% elif (post.votes == 0) %}hlasov{% endif %}
+    </strong>
     <form action="{{ url_for('posts.downvote_post', post_id=post.id) }}" method="post">
       {% if post.can_downvote %}
       <button>&#8964;</button>
@@ -94,13 +99,18 @@
         <button>&#8963;</button>
         {% endif %}
       </form>
-      <strong>{{ comment.votes }}<br>hlasov</strong>
+      <strong>{{ comment.votes }}<br>
+        {% if ((comment.votes > 5) or (comment.votes < -5)) %} hlasov
+        {% elif ((comment.votes > 1) or (comment.votes < -1)) %} hlasy
+        {% elif (comment.votes == 1) or (comment.votes == -1) %} hlas
+        {% elif (comment.votes == 0) %}hlasov{% endif %}
+      </strong>
       <form action="{{ url_for('posts.downvote_comment', post_id=post.id, comment_id=comment.id) }}" method="post">
         {% if comment.can_downvote %}
         <button>&#8964;</button>
         {% endif %}
       </form>
-      {% if comment.votes > 0 %}
+      {% if comment.votes > 5 %}
       <div class="text-success text-center">
         <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-check-circle-fill" fill="currentColor"
           xmlns="http://www.w3.org/2000/svg">
