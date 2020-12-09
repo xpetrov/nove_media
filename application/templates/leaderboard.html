@@ -1,6 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
 
+<section>
+  <h1>Top prispievatelia</h1>
+  <p>Pravidelný prispievatelia tvoria základ komunity projektu Dezinfórum. Pozrite si rebríček top 5 prispievateľov na
+    základe dosiahnutého skóre v ich príspevkoch.</p>
+</section>
+
+<h2>Rebríček:</h2>
 <table class="leaderboard">
   <tr>
     <th>Poradie</th>
@@ -9,6 +16,7 @@
     <th>Odznaky</th>
   </tr>
   {% for user in users %}
+  {% if loop.index <= 5 %}
   <tr>
     <td>{{ loop.index }}</td>
     <td>{{ user.username }}</td>
@@ -25,6 +33,7 @@
       {% endif %}
     </td>
   </tr>
+  {% endif %}
   {% endfor %}
 </table>
 
